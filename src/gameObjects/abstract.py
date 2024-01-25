@@ -4,6 +4,26 @@ from typing import Tuple, List
 import random
 
 
+class StaticBackgroundImageBaseClass:
+    def __init__(self : "StaticBackgroundImageBaseClass",
+                    imgPath : str, pos : Tuple[int]) -> None:
+    
+        self.image : "pygame.surface.Surface" = pygame.image.load(imgPath).convert_alpha()
+        self.posRect : "pygame.Rect" = self.image.get_rect()
+        
+        self.posRect.x, self.posRect.y = pos
+        
+    def get_render_object(self : "StaticBackgroundImageBaseClass", scaleFactor = None) -> "pygame.surface.Surface":
+        if scaleFactor:
+            scaledImage = pygame.transform.scale(self.image, (self.image.get_width(), self.image.get_height() * scaleFactor))
+            return scaledImage
+        
+        return self.image
+    
+    def get_render_object_pos(self : "StaticBackgroundImageBaseClass") -> "pygame.Rect":
+        return self.posRect
+
+
 class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
     """
     DropAbleSpriteBaseClass represents a sprite that falls under gravity and exhibits a swinging effect during its fall.
