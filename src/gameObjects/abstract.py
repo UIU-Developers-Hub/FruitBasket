@@ -125,9 +125,10 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Args:
         - amplitude (float, optional): Amplitude of the swinging effect. Defaults to 10.0.
         """
-        self.rotation_angle : float= self.oscillationDirection * self.rotation_speed
+        self.rotation_angle += self.oscillationDirection * self.rotation_speed
         rotated_image : "pygame.surface.Surface" = pygame.transform.rotate(self.srcImages[0], self.rotation_angle)
-        self.image : "pygame.surface.Surface" = rotated_image
+        self.image = rotated_image
+        self.rect = rotated_image.get_rect(center=self.rect.center)
 
     def __handle_single_src_image(self, imagesSrc: Tuple[str], scaleable: bool, scaleValue: float) -> None:
         """
@@ -139,11 +140,11 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         - scaleValue (float): Float representing the scale factor of the sprite.
         """
         self.singleSrcImgSprite = True
-        self.srcImages : List["pygame.surface.Surface"] = [pygame.image.load(imagesSrc[0]).convert_alpha()]
+        self.srcImages = [pygame.image.load(imagesSrc[0]).convert_alpha()]
 
         if scaleable:
             self.srcImages[0] = pygame.transform.scale(
-                self.srcImages[0], pygame.math.Vector2(self.srcImg.get_size()) * scaleValue
+                self.srcImages[0], (int(self.srcImages[0].get_width() * scaleValue), int(self.srcImages[0].get_height() * scaleValue))
             )
 
     def __handle_multi_src_images(self, imagesSrc: Tuple[str], scaleable: bool, scaleValue: float) -> None:
@@ -155,13 +156,13 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         - scaleable (bool): Boolean indicating whether the sprite is scalable.
         - scaleValue (float): Float representing the scale factor of the sprite.
         """
-        self.srcImages : List["pygame.surface.Surface"] = []
+        self.srcImages = []
 
-        for srcImg in self.srcImages:
-            img : "pygame.surface.Surface" = pygame.image.load(srcImg).convert_alpha()
+        for srcImg in imagesSrc:
+            img = pygame.image.load(srcImg).convert_alpha()
             if scaleable:
                 img = pygame.transform.scale(
-                    img, pygame.math.Vector2(img.get_size()) * scaleValue
+                    img, (int(img.get_width() * scaleValue), int(img.get_height() * scaleValue))
                 )
             self.srcImages.append(img)
 
@@ -183,11 +184,11 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         """
         Initializes the sprite's image, rect, and position vector.
         """
-        self.image : "pygame.surface.Surface" = self.srcImages[0]
-        self.rect : "pygame.Rect" = self.image.get_rect(topleft=self.spriteGenaratePos)
-        self.posVector : "pygame.math.Vector2" = pygame.math.Vector2(self.rect.topleft)
+        self.image = self.srcImages[0]
+        self.rect = self.image.get_rect(topleft=self.spriteGenaratePos)
+        self.posVector = pygame.math.Vector2(self.rect.topleft)
 
-    def animate(self, dt: float) -> None:
+    def animate_sprite(self, dt: float) -> None:
         """
         Placeholder method for sprite animation (to be implemented).
 
@@ -206,6 +207,6 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         """
         self.__apply_physics(dt)
         if self.animate:
-            self.animate(dt)
+            self.animate_sprite(dt)
         if self.posVector.y > self.windowWH[1] + 100:
             self.kill()
