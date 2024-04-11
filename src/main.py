@@ -3,7 +3,7 @@ import time
 import pygame
 import random
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from utility import *  # Importing utility functions and constants
 from gameObjects import StaticBackgroundImageBaseClass, Fruit, Bug, Busket  # Importing game object classes
@@ -13,16 +13,16 @@ class Game:
     Main class for the Fruit Busket game.
     """
 
-    NAME = "Fruit Busket"
-    MAXSOCRE = 0
-    STATE = (
+    NAME: str = "Fruit Busket"
+    MAXSCORE: int = 0
+    STATE: Tuple[str, ...] = (
         "PlayState",
         "MenuState",
         "PauseState",
         "GameOver"
     )
 
-    def __init__(self, windowConfig) -> None:
+    def __init__(self, windowConfig: Tuple[int, int]) -> None:
         """
         Initializes the game.
         
@@ -31,14 +31,14 @@ class Game:
         """
         pygame.init()
 
-        self.windowConfig = windowConfig
+        self.windowConfig: Tuple[int, int] = windowConfig
         self.windowWidth, self.windowHeight = windowConfig
 
         # Initial game state
-        self.state = Game.STATE[1]  # Start with MenuState
-        self.active = False  # Game active flag
-        self.clock = pygame.time.Clock()  # Pygame clock object
-        self.maxFPS = 60  # Maximum frames per second
+        self.state: str = Game.STATE[1]  # Start with MenuState
+        self.active: bool = False  # Game active flag
+        self.clock: pygame.time.Clock = pygame.time.Clock()  # Pygame clock object
+        self.maxFPS: int = 60  # Maximum frames per second
 
         # Player score and level
         self.point: int = 0
@@ -46,34 +46,44 @@ class Game:
 
         # Configure window and initialize fonts and game objects
         self.__config_window()
+        self.__config_mp3()
         self.__setup_font()
         self.__load_fruit_assets()
         self.__load_bug_assets()
         self.__setup_game_objects()
 
+    def __config_mp3(self) -> None:
+        """Configures the game's audio."""
+        self.bgMusic: pygame.mixer.Sound = pygame.mixer.Sound(filePaths["bgMusic"])
+        self.menuMusic: pygame.mixer.Sound = pygame.mixer.Sound(filePaths["menuMusic"])
+        self.fruitCollisionSE: pygame.mixer.Sound = pygame.mixer.Sound(filePaths["fruitCollision"])
+        self.bugCollisionSE: pygame.mixer.Sound = pygame.mixer.Sound(filePaths["bugCollision"])
+        self.lvlUpSE: pygame.mixer.Sound = pygame.mixer.Sound(filePaths["lvlUp"])
+        self.activeMusic: pygame.mixer.Sound = self.menuMusic
+
     def __config_window(self) -> None:
         """
         Configures the game window.
         """
-        self.window = pygame.display
+        self.window: pygame.display = pygame.display
         self.window.set_mode(self.windowConfig)
         self.window.set_caption(Game.NAME)
-        self.mainSurface = self.window.get_surface()
+        self.mainSurface: pygame.Surface = self.window.get_surface()
 
     def __setup_font(self) -> None:
         """
         Initializes fonts for the game.
         """
-        self.font = pygame.font.Font(filePaths["font"], fontSize)
-        self.font.bold = True
-        self.menuFont = pygame.font.Font(filePaths["font"], fontSize - 10)
-        self.menuFont.bold = False
+        self.font: pygame.font.Font = pygame.font.Font(filePaths["font"], fontSize)
+        self.font.bold: bool = True
+        self.menuFont: pygame.font.Font = pygame.font.Font(filePaths["font"], fontSize - 10)
+        self.menuFont.bold: bool = False
 
     def __load_fruit_assets(self) -> None:
         """
         Loads fruit assets.
         """
-        fruitAssetsFolderObj = Path(folderPaths["fruit"])
+        fruitAssetsFolderObj: Path = Path(folderPaths["fruit"])
         self.fruitsAssets: List[str] = [str(file) for file in fruitAssetsFolderObj.iterdir() if file.is_file()]
         self.fruitPoint: Dict[str, int] = {key: int(key.split("//")[-1].split(".")[0][-1]) + 10 for key in
                                            self.fruitsAssets}
@@ -82,20 +92,20 @@ class Game:
         """
         Loads bug assets.
         """
-        bugAssetsFolderObj = Path(folderPaths["bug"])
+        bugAssetsFolderObj: Path = Path(folderPaths["bug"])
         self.bugAssets: List[str] = [str(file) for file in bugAssetsFolderObj.iterdir() if file.is_file()]
         self.bugDamage: Dict[str, int] = {key: int(key.split("//")[-1].split(".")[0][-1]) + 11 for key in
                                           self.bugAssets}
 
-    def __setup_game_objects(self):
+    def __setup_game_objects(self) -> None:
         """
         Sets up game objects.
         """
         self.backGround: StaticBackgroundImageBaseClass = StaticBackgroundImageBaseClass(filePaths["bg"], (0, 0))
-        self.fruitGroup = pygame.sprite.Group()
-        self.bugGroup = pygame.sprite.Group()
-        self.player = Busket(filePaths["player"], 100, self.windowHeight - 150, [-100, self.windowWidth],
-                             scaleFactor=0.25)
+        self.fruitGroup: pygame.sprite.Group = pygame.sprite.Group()
+        self.bugGroup: pygame.sprite.Group = pygame.sprite.Group()
+        self.player: Busket = Busket(filePaths["player"], 100, self.windowHeight - 150, [-100, self.windowWidth],
+                                     scaleFactor=0.25)
 
     def __set_level(self) -> int:
         """
@@ -124,7 +134,7 @@ class Game:
         """
         # Spawning fruits
         if random.randint(0, 100) < 3 and len(self.fruitGroup) < levelWiseParameters[self.lvl]["fruitSpwanLimit"]:
-            selectedFruit = random.choice(self.fruitsAssets)
+            selectedFruit: str = random.choice(self.fruitsAssets)
             Fruit(
                 (selectedFruit,),
                 self.fruitGroup, self.windowConfig,
@@ -141,7 +151,7 @@ class Game:
 
         # Spawning bugs
         if random.randint(0, 100) < 1 and len(self.bugGroup) < levelWiseParameters[self.lvl]["bugSpwanLimit"]:
-            selectedBug = random.choice(self.bugAssets)
+            selectedBug: str = random.choice(self.bugAssets)
             Bug(
                 (selectedBug,),
                 self.bugGroup, self.windowConfig,
@@ -159,6 +169,7 @@ class Game:
         for fruit in self.fruitGroup:
             fruit.update(dt)
             if self.player.collision_occurred(fruit):
+                self.fruitCollisionSE.play()
                 self.point += fruit.point
                 fruit.kill()
 
@@ -166,6 +177,7 @@ class Game:
         for bug in self.bugGroup:
             bug.update(dt)
             if self.player.collision_occurred(bug):
+                self.bugCollisionSE.play()
                 self.player.live -= bug.damage
                 bug.kill()
 
@@ -205,7 +217,7 @@ class Game:
         if self.state == Game.STATE[1]:
             self.mainSurface.blit(self.menuFont.render("Press Enter To Play !", False, "white"),
                                   (110, 220, self.windowWidth, 80))
-            self.mainSurface.blit(self.menuFont.render(f"MAX SCORE : {Game.MAXSOCRE}", False, "white"),
+            self.mainSurface.blit(self.menuFont.render(f"MAX SCORE : {Game.MAXSCORE}", False, "white"),
                                   (150, 260, self.windowWidth, 80))
         elif self.state == Game.STATE[3]:
             self.mainSurface.blit(
@@ -226,26 +238,31 @@ class Game:
         self.mainSurface.blit(self.menuFont.render("Use Left and Right key to move.", False, "white"),
                               (60, 500, self.windowWidth, 80))
 
-    def __reset(self):
+    def __reset(self) -> None:
         """
         Resets the game state.
         """
-        Game.MAXSOCRE = max(self.point, Game.MAXSOCRE)
+        Game.MAXSCORE = max(self.point, Game.MAXSCORE)
         self.point = 0
         self.player.live = 100
         self.lvl = 1
         [fruit.kill() for fruit in self.fruitGroup]
         [bug.kill() for bug in self.bugGroup]
 
-    def __game_loop(self):
+    def __game_loop(self) -> None:
         """
         Main game loop.
         """
-        lastTime = time.time()
+        self.activeMusic.play(-1)
+        lastTime: float = time.time()
         while self.active:
+            dt: float = (time.time() - lastTime)
+            lastTime: float = time.time()
+            
+            prevLvl: int = self.lvl
             self.lvl = self.__set_level()
-            dt = (time.time() - lastTime)
-            lastTime = time.time()
+            if prevLvl != self.lvl:
+                self.lvlUpSE.play()
 
             # Event handling loop
             for event in pygame.event.get():
@@ -284,15 +301,25 @@ class Game:
 
             # Update game logic or render menu depending on the game state
             if self.state == Game.STATE[0]:
+                if self.activeMusic != self.bgMusic:
+                    self.activeMusic.stop()
+                    self.activeMusic = self.bgMusic
+                    self.activeMusic.play(-1)
+                    
                 self.__game_logic(dt)
             else:
+                if self.activeMusic != self.menuMusic:
+                    self.activeMusic.stop()
+                    self.activeMusic = self.menuMusic
+                    self.activeMusic.play(-1)
+                    
                 self.__render_menu()
 
             # Update the display
             self.window.update()
             self.clock.tick(self.maxFPS)
 
-    def run(self):
+    def run(self) -> None:
         """
         Runs the game.
         """
@@ -300,7 +327,7 @@ class Game:
         self.__game_loop()
         self.__clean_up()
 
-    def __clean_up(self):
+    def __clean_up(self) -> None:
         """
         Cleans up resources and quits pygame.
         """

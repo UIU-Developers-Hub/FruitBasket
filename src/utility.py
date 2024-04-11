@@ -1,19 +1,31 @@
-windowConfig = (480, 720)  # Window dimensions
+from typing import Tuple, Dict
 
-fontSize = 50  # Font size for text rendering
+# Define window dimensions
+windowConfig: Tuple[int, int] = (480, 720)
 
-folderPaths = {
+# Font size for text rendering
+fontSize: int = 50
+
+# Folder paths for assets
+folderPaths: Dict[str, str] = {
     "fruit": "assets/fruits/",  # Folder path for fruit assets
     "bug": "assets/bugs/",  # Folder path for bug assets
 }
 
-filePaths = {
+# File paths for assets
+filePaths: Dict[str, str] = {
     "font": "assets/font/Pixeltype.ttf",  # Path to the font file
     "bg": "assets/bg/bg.jpg",  # Path to the background image
-    "player": "assets/player/basket.png"  # Path to the player image
+    "player": "assets/player/basket.png",  # Path to the player image
+    "fruitCollision": "assets/mp3/fruit_se.mp3",  # Path to fruit collision sound effect
+    "bugCollision": "assets/mp3/bug_se.mp3",  # Path to bug collision sound effect
+    "bgMusic": "assets/mp3/bg_music.mp3",  # Path to background music
+    "menuMusic": "assets/mp3/menu_music.mp3",  # Path to menu music
+    "lvlUp": "assets/mp3/levelUp.mp3"  # Path to level up sound effect
 }
 
-levelWiseParameters = {
+# Level-wise parameters for the game
+levelWiseParameters: Dict[int, Dict[str, int]] = {
     1: {
         "fruitG": 330,  # Gravity for fruits in level 1
         "bugG": 333,  # Gravity for bugs in level 1
