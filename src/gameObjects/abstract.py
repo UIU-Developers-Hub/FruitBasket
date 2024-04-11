@@ -1,83 +1,89 @@
 import math
 import pygame
-from typing import Tuple, List
+from typing import Tuple
 import random
 
-
 class StaticBackgroundImageBaseClass:
-    def __init__(self : "StaticBackgroundImageBaseClass",
-                    imgPath : str, pos : Tuple[int]) -> None:
-    
-        self.image : "pygame.surface.Surface" = pygame.image.load(imgPath).convert_alpha()
-        self.posRect : "pygame.Rect" = self.image.get_rect()
-        
+    def __init__(self: "StaticBackgroundImageBaseClass", imgPath: str, pos: Tuple[int]) -> None:
+        """
+        Initializes a StaticBackgroundImageBaseClass instance.
+
+        Args:
+            imgPath (str): The file path of the background image.
+            pos (Tuple[int]): The position of the background image.
+        """
+        self.image: "pygame.surface.Surface" = pygame.image.load(imgPath).convert_alpha()
+        self.posRect: "pygame.Rect" = self.image.get_rect()
         self.posRect.x, self.posRect.y = pos
         
-    def get_render_object(self : "StaticBackgroundImageBaseClass", scaleFactor = None) -> "pygame.surface.Surface":
+    def get_render_object(self: "StaticBackgroundImageBaseClass", scaleFactor=None) -> "pygame.surface.Surface":
+        """
+        Returns a scaled background image.
+
+        Args:
+            scaleFactor: The scale factor for the background image. Defaults to None.
+
+        Returns:
+            pygame.surface.Surface: The scaled background image.
+        """
         if scaleFactor:
             scaledImage = pygame.transform.scale(self.image, (self.image.get_width(), self.image.get_height() * scaleFactor))
             return scaledImage
-        
         return self.image
     
-    def get_render_object_pos(self : "StaticBackgroundImageBaseClass") -> "pygame.Rect":
-        return self.posRect
+    def get_render_object_pos(self: "StaticBackgroundImageBaseClass") -> "pygame.Rect":
+        """
+        Returns the position of the background image.
 
+        Returns:
+            pygame.Rect: The position of the background image.
+        """
+        return self.posRect
 
 class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
     """
     DropAbleSpriteBaseClass represents a sprite that falls under gravity and exhibits a swinging effect during its fall.
 
     Attributes:
-    - __DEFAULT_GRAVITY (int): Class attribute representing the default gravity value. The gravity affects the downward acceleration of the sprite during its fall.
-    - singleSrcImgSprite (bool): Boolean attribute indicating whether the sprite has a single source image.
-    - windowWH (Tuple[int]): Tuple representing the dimensions (width, height) of the game window.
-    - animate (bool): Boolean indicating whether animation is enabled for the sprite.
-    - scaleable (bool): Boolean indicating whether the sprite is scalable.
-    - scaleValue (float): Float representing the scale factor of the sprite.
-    - gravity (int): Integer representing the gravitational force applied to the sprite.
-    - acc (float): Float representing the accumulated acceleration of the sprite.
-    - oscillationDirection (int): Integer representing the direction of oscillation (-1 for left, 1 for right).
-    - rotation_angle (float): Float representing the accumulated rotation angle during oscillation.
-    - rotation_speed (float): Float representing the speed at which the rotation angle changes.
-    - spriteGenaratePos (Tuple[int]): Tuple representing the initial position of the sprite.
+        __DEFAULT_GRAVITY (int): Default gravity value affecting the downward acceleration of the sprite.
+        singleSrcImgSprite (bool): Flag indicating if the sprite has a single source image.
+        windowWH (Tuple[int]): Window dimensions (width, height).
+        animate (bool): Flag indicating if animation is enabled for the sprite.
+        scaleable (bool): Flag indicating if the sprite is scalable.
+        scaleValue (float): Scale factor of the sprite.
+        gravity (int): Gravitational force applied to the sprite.
+        acc (float): Accumulated acceleration of the sprite.
+        oscillationDirection (int): Direction of oscillation (-1 for left, 1 for right).
+        rotation_angle (float): Accumulated rotation angle during oscillation.
+        rotation_speed (float): Speed at which the rotation angle changes.
+        spriteGenaratePos (Tuple[int]): Initial position of the sprite.
 
     Methods:
-    - __init__: Initializes the DropAbleSpriteBaseClass instance.
-    - __apply_physics: Applies physics simulation to the sprite based on gravity and time.
-    - __fall_rotation: Applies a swinging effect to the sprite during its fall.
-    - __handle_single_src_image: Handles loading and scaling of a single source image for the sprite.
-    - __handle_multi_src_images: Handles loading and scaling of multiple source images for the sprite.
-    - load_src_images: Chooses between handling a single or multiple source images based on input.
-    - make_images: Initializes the sprite's image, rect, and position vector.
-    - animate: Placeholder method for sprite animation (to be implemented).
-    - update: Updates the sprite's state based on time and physics, handles animation, and checks if the sprite has fallen out of the window.
-
+        __init__: Initializes the DropAbleSpriteBaseClass instance.
+        __apply_physics: Applies physics simulation to the sprite based on gravity and time.
+        __fall_rotation: Applies a swinging effect to the sprite during its fall.
+        __handle_single_src_image: Handles loading and scaling of a single source image for the sprite.
+        __handle_multi_src_images: Handles loading and scaling of multiple source images for the sprite.
+        load_src_images: Chooses between handling a single or multiple source images based on input.
+        make_images: Initializes the sprite's image, rect, and position vector.
+        animate: Placeholder method for sprite animation (to be implemented).
+        update: Updates the sprite's state based on time and physics, handles animation, and checks if the sprite has fallen out of the window.
     """
 
     __DEFAULT_GRAVITY: int = 377
 
-    def __init__(
-        self,
-        imagesSrc: Tuple[str],
-        groups : "pygame.sprite.Group",
-        windowWH: Tuple[int],
-        scaleable: bool,
-        scaleValue: float,
-        animate: bool,
-        randomFactor: Tuple[int] = None,
-    ) -> None:
+    def __init__(self, imagesSrc: Tuple[str], groups: "pygame.sprite.Group", windowWH: Tuple[int], scaleable: bool, scaleValue: float, animate: bool, randomFactor: Tuple[int] = None) -> None:
         """
         Initializes a DropAbleSpriteBaseClass instance.
 
         Args:
-        - imagesSrc (Tuple[str]): Tuple containing the file paths of sprite images.
-        - groups (pygame.sprite.Group): Pygame sprite groups to which the sprite belongs.
-        - windowWH (Tuple[int]): Tuple representing the dimensions (width, height) of the game window.
-        - scaleable (bool): Boolean indicating whether the sprite is scalable.
-        - scaleValue (float): Float representing the scale factor of the sprite.
-        - animate (bool): Boolean indicating whether animation is enabled for the sprite.
-        - randomFactor (Tuple[int], optional): Tuple representing the random factors for sprite generation. Defaults to None.
+            imagesSrc (Tuple[str]): Tuple containing file paths of sprite images.
+            groups (pygame.sprite.Group): Sprite groups to which the sprite belongs.
+            windowWH (Tuple[int]): Window dimensions (width, height).
+            scaleable (bool): Flag indicating if the sprite is scalable.
+            scaleValue (float): Scale factor of the sprite.
+            animate (bool): Flag indicating if animation is enabled for the sprite.
+            randomFactor (Tuple[int], optional): Tuple representing random factors for sprite generation. Defaults to None.
         """
         super().__init__(groups)
 
@@ -88,7 +94,7 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         self.scaleValue: float = scaleValue
         self.gravity: int = DropAbleSpriteBaseClass.__DEFAULT_GRAVITY
         self.acc: float = 0.0
-        self.oscillationDirection : int = random.choice([1, -1])
+        self.oscillationDirection: int = random.choice([1, -1])
         self.rotation_angle: float = 0.0
         self.rotation_speed: float = random.uniform(100.0, 500.0)
 
@@ -112,7 +118,7 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Applies physics simulation to the sprite based on gravity and time.
 
         Args:
-        - dt (float): Time passed since the last frame.
+            dt (float): Time passed since the last frame.
         """
         self.acc += self.gravity * dt
         self.posVector.y += self.acc * dt
@@ -123,10 +129,10 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Applies a swinging effect to the sprite during its fall.
 
         Args:
-        - amplitude (float, optional): Amplitude of the swinging effect. Defaults to 10.0.
+            amplitude (float, optional): Amplitude of the swinging effect. Defaults to 10.0.
         """
         self.rotation_angle += self.oscillationDirection * self.rotation_speed
-        rotated_image : "pygame.surface.Surface" = pygame.transform.rotate(self.srcImages[0], self.rotation_angle)
+        rotated_image: "pygame.surface.Surface" = pygame.transform.rotate(self.srcImages[0], self.rotation_angle)
         self.image = rotated_image
         self.rect = rotated_image.get_rect(center=self.rect.center)
 
@@ -135,9 +141,9 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Handles loading and scaling of a single source image for the sprite.
 
         Args:
-        - imagesSrc (Tuple[str]): Tuple containing the file paths of sprite images.
-        - scaleable (bool): Boolean indicating whether the sprite is scalable.
-        - scaleValue (float): Float representing the scale factor of the sprite.
+            imagesSrc (Tuple[str]): Tuple containing file paths of sprite images.
+            scaleable (bool): Flag indicating if the sprite is scalable.
+            scaleValue (float): Scale factor of the sprite.
         """
         self.singleSrcImgSprite = True
         self.srcImages = [pygame.image.load(imagesSrc[0]).convert_alpha()]
@@ -152,9 +158,9 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Handles loading and scaling of multiple source images for the sprite.
 
         Args:
-        - imagesSrc (Tuple[str]): Tuple containing the file paths of sprite images.
-        - scaleable (bool): Boolean indicating whether the sprite is scalable.
-        - scaleValue (float): Float representing the scale factor of the sprite.
+            imagesSrc (Tuple[str]): Tuple containing file paths of sprite images.
+            scaleable (bool): Flag indicating if the sprite is scalable.
+            scaleValue (float): Scale factor of the sprite.
         """
         self.srcImages = []
 
@@ -171,9 +177,9 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Chooses between handling a single or multiple source images based on input.
 
         Args:
-        - imagesSrc (Tuple[str]): Tuple containing the file paths of sprite images.
-        - scaleable (bool): Boolean indicating whether the sprite is scalable.
-        - scaleValue (float): Float representing the scale factor of the sprite.
+            imagesSrc (Tuple[str]): Tuple containing file paths of sprite images.
+            scaleable (bool): Flag indicating if the sprite is scalable.
+            scaleValue (float): Scale factor of the sprite.
         """
         if len(imagesSrc) == 1:
             self.__handle_single_src_image(imagesSrc, scaleable, scaleValue)
@@ -193,7 +199,7 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Placeholder method for sprite animation (to be implemented).
 
         Args:
-        - dt (float): Time passed since the last frame.
+            dt (float): Time passed since the last frame.
         """
         # TO-DO
         pass
@@ -203,7 +209,7 @@ class DropAbleSpriteBaseClass(pygame.sprite.Sprite):
         Updates the sprite's state based on time and physics, handles animation, and checks if the sprite has fallen out of the window.
 
         Args:
-        - dt (float): Time passed since the last frame.
+            dt (float): Time passed since the last frame.
         """
         self.__apply_physics(dt)
         if self.animate:
