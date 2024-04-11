@@ -2,9 +2,10 @@ import pygame
 
 
 class Busket(pygame.sprite.Sprite):
-    def __init__(self, image: str) -> None:
+    def __init__(self, image: str, live : int) -> None:
         self.image = image
         self.rect = None
+        self.live = live
 
     def move(self, x: int, y: int) -> None:
         pass
