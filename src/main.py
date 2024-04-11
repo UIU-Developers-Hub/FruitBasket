@@ -158,14 +158,14 @@ class Game:
         # Update fruits
         for fruit in self.fruitGroup:
             fruit.update(dt)
-            if self.player.collision_occured(fruit):
+            if self.player.collision_occurred(fruit):
                 self.point += fruit.point
                 fruit.kill()
 
         # Update bugs
         for bug in self.bugGroup:
             bug.update(dt)
-            if self.player.collision_occured(bug):
+            if self.player.collision_occurred(bug):
                 self.player.live -= bug.damage
                 bug.kill()
 
