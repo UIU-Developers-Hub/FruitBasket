@@ -5,19 +5,20 @@ import random
 from pathlib import Path
 from typing import List, Dict
 
+from utility import *
 from gameObjects import StaticBackgroundImageBaseClass, Fruit, Bug
 
 # helper variables
 active : bool = True
 point : int = 0
-windowWidth, windowHeight = windowConfig = (480, 720)
+windowWidth, windowHeight = windowConfig
 
-fruitAssetsFolderPath = Path("assets/fruits/")
-fruitsAssets : List[str] = [str(file) for file in fruitAssetsFolderPath.iterdir() if file.is_file()]
+fruitAssetsFolderObj = Path(folderPaths["fruit"])
+fruitsAssets : List[str] = [str(file) for file in fruitAssetsFolderObj.iterdir() if file.is_file()]
 fruitPoint : Dict[str, int] = {key: key.split("//")[-1].split(".")[0][-1] for key in fruitsAssets}
 
-bugAssetsFolderPath = Path("assets/bugs/")
-bugAssets : List[str] = [str(file) for file in bugAssetsFolderPath.iterdir() if file.is_file()]
+bugAssetsFolderObj = Path(folderPaths["bug"])
+bugAssets : List[str] = [str(file) for file in bugAssetsFolderObj.iterdir() if file.is_file()]
 bugDamage : Dict[str, int] = {key: key.split("//")[-1].split(".")[0][-1] for key in bugAssets}
 
 # initializing pygame must do
@@ -27,10 +28,10 @@ pygame.init()
 window = pygame.display
 window.set_mode(windowConfig)
 mainSurface = window.get_surface()
-font = pygame.font.Font("assets/font/Pixeltype.ttf", 50)
+font = pygame.font.Font(filePaths["font"], fontSize)
 
 # Game objects and other variables
-backGround : StaticBackgroundImageBaseClass = StaticBackgroundImageBaseClass("assets/bg/bg.jpg", (0, 0))
+backGround : StaticBackgroundImageBaseClass = StaticBackgroundImageBaseClass(filePaths["bg"], (0, 0))
 fruitGroup = pygame.sprite.Group()
 bugGroup = pygame.sprite.Group()
 
